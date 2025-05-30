@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-//import axios from "../api/axios";
+import axios from "../api/axios";
 import { Link } from "react-router-dom";
-import Navbar from '../components/Navbar';
+import Navbar from "../components/Navbar";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const tempImage = "../src/assets/image.png";
-
-
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -98,6 +96,18 @@ const Home = () => {
     fetchProducts();
   }, []);
 
+  const handleButtonClick = async (event) => {
+    try {
+      const res = await axios.post("/test/hello", {});
+      alert(res.data);
+
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log('Button clicked' + event.target.innerText);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 🔹 Navbar */}
@@ -105,23 +115,46 @@ const Home = () => {
 
       {/* 🔹 Product Section */}
       <main className="p-6">
-        <h2 className="text-3xl text-gray-900 font-bold mb-6">✨ Featured Products</h2>
+        <div className="flex flex-row w-full mb-6">
+          <h2 className="text-2xl sm:text-3xl text-gray-900 font-bold">
+            ✨ Featured Products
+          </h2>
+
+          <button
+            onClick={handleButtonClick}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base py-2 px-4 rounded-full ms-4"
+          >
+            Button
+          </button>
+        </div>
 
         {loading ? (
           <div className="text-center text-gray-500">Loading products...</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
-              <div key={product.id} className="border rounded-2xl p-4 shadow hover:shadow-lg transition duration-300 bg-white">
+              <div
+                key={product.id}
+                className="border rounded-2xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
+              >
                 <img
-                  src={product.imageUrl || 'https://via.placeholder.com/300x200'}
+                  src={
+                    product.imageUrl || "https://via.placeholder.com/300x200"
+                  }
                   alt={product.name}
                   className="w-full h-48 object-cover rounded-xl mb-3"
                 />
                 <h3 className="text-xl font-semibold mb-1">{product.name}</h3>
-                <p className="text-gray-600 text-sm mb-2">{product.description?.slice(0, 60)}...</p>
-                <p className="text-lg font-bold text-green-600 mb-2">${product.price}</p>
-                <Link to={`/product/${product.id}`} className="text-indigo-600 hover:underline text-sm">
+                <p className="text-gray-600 text-sm mb-2">
+                  {product.description?.slice(0, 60)}...
+                </p>
+                <p className="text-lg font-bold text-green-600 mb-2">
+                  ${product.price}
+                </p>
+                <Link
+                  to={`/product/${product.id}`}
+                  className="text-indigo-600 hover:underline text-sm"
+                >
                   View Details →
                 </Link>
               </div>

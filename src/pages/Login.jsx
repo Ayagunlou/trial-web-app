@@ -3,12 +3,14 @@ import axios from "../api/axios";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner.jsx"; // ✨ Import Spinner
+import AlertMessage from "../components/AlertMessage.jsx";
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth(); // 💡 Get isAuthenticated
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false); // ✨ Add loading state
+  const [loginError, setLoginError] = useState(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -27,8 +29,7 @@ const Login = () => {
       login(res.data.accessToken, form.username);
       // navigate('/'); // Navigation is handled by AuthContext or useEffect after isAuthenticated changes
     } catch (error) {
-      console.error("Login failed:", error);
-      // TODO: Show an error message to the user
+      setLoginError(error.response.data);
     } finally {
       setIsLoading(false); // ✨ Set loading false
     }
@@ -45,6 +46,17 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      {/* 🔹 Alert Message Container - Placed within the centering div */}
+      <div className="absolute top-10 w-full max-w-sm px-4"> 
+        {loginError && (
+          <AlertMessage
+            message={loginError}
+            type="error"
+            onClose={() => setLoginError(null)} 
+          />
+        )}
+      </div>
+
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm"
