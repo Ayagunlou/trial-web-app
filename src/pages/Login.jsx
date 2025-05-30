@@ -54,7 +54,7 @@ const Login = () => {
         </h2>
         <div className="mb-4">
           <input
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             name="username"
             placeholder="Username"
             onChange={handleChange}
@@ -63,7 +63,7 @@ const Login = () => {
         </div>
         <div className="mb-6">
           <input
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             name="password"
             type="password"
             placeholder="Password"

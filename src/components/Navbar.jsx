@@ -6,7 +6,7 @@ const Navbar = () => {
 
   return (
     <header className="bg-white shadow px-6 py-4">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="w-full flex justify-between items-center px-4">
         
         {/* ซ้าย: ลิงก์เมนู */}
         <nav className="flex space-x-4">
