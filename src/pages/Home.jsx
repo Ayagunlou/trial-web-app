@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
-import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { ModalComponent } from "../components/ModalComponent";
+import { TypeAlert } from "../constants/constants";
+import { AlertMessage } from "../components/AlertMessage.jsx";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alertMsg, setAlertMsg] = useState(null);
   const tempImage = "../src/assets/image.png";
 
   useEffect(() => {
@@ -15,7 +20,8 @@ const Home = () => {
           {
             id: 1,
             name: "Cool T-Shirt",
-            description: "100% Cotton, Comfortable fit.",
+            description:
+              "100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit",
             price: 19.99,
             imageUrl: tempImage,
           },
@@ -96,23 +102,47 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  const handleButtonClick = async (event) => {
+  const handleButtonClick = async () => {
     try {
       const res = await axios.post("/test/hello", {});
-      alert(res.data);
-
+      setAlertMsg({
+        typeAlert: TypeAlert.SUCCESS,
+        message: res.data,
+      });
     } catch (error) {
-      console.log(error);
-    } finally {
-      console.log('Button clicked' + event.target.innerText);
+      setAlertMsg({
+        typeAlert: TypeAlert.WARNING,
+        message: error.response?.data.error,
+      });
     }
+  };
+
+  const openProductDetailsModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+    console.log("Modal open");
+    setAlertMsg(null);
+  };
+
+  const closeProductDetailsModal = () => {
+    setSelectedProduct(null);
+    setIsModalOpen(false);
+    console.log("Modal closed");
+  };
+  const onAcceptProductDetailsModal = () => {
+    console.log("Accepted product:", selectedProduct.name);
+  };
+  const onDeclineProductDetailsModal = () => {
+    console.log("Declined product:", selectedProduct.name);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* 🔹 Navbar */}
       <Navbar />
-
+      {alertMsg && (
+        <AlertMessage type={alertMsg.typeAlert} msg={alertMsg.message} />
+      )}
       {/* 🔹 Product Section */}
       <main className="p-6">
         <div className="flex flex-row w-full mb-6">
@@ -144,24 +174,49 @@ const Home = () => {
                   alt={product.name}
                   className="w-full h-48 object-cover rounded-xl mb-3"
                 />
-                <h3 className="text-xl font-semibold mb-1">{product.name}</h3>
-                <p className="text-gray-600 text-sm mb-2">
-                  {product.description?.slice(0, 60)}...
+                <h3 className="text-xl text-gray-600 font-semibold mb-1 line-clamp-1">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-2 line-clamp-1">
+                  {product.description}
                 </p>
                 <p className="text-lg font-bold text-green-600 mb-2">
                   ${product.price}
                 </p>
-                <Link
-                  to={`/product/${product.id}`}
+                <button
+                  onClick={() => openProductDetailsModal(product)}
                   className="text-indigo-600 hover:underline text-sm"
                 >
                   View Details →
-                </Link>
+                </button>
               </div>
             ))}
           </div>
         )}
       </main>
+
+      {/* ModalComponent: แสดงรายละเอียดสินค้า */}
+      {selectedProduct && (
+        <ModalComponent
+          show={isModalOpen}
+          onClose={closeProductDetailsModal}
+          onAccept={onAcceptProductDetailsModal}
+          onDecline={onDeclineProductDetailsModal}
+          textHeader={selectedProduct.name}
+        >
+          <img
+            src={selectedProduct.imageUrl || tempImage}
+            alt={selectedProduct.name}
+            className="w-full h-60 object-cover rounded-xl mb-4"
+          />
+          <p className="text-text-white text-sm mb-2">
+            {selectedProduct.description}
+          </p>
+          <p className="text-lg font-bold text-green-300">
+            ${selectedProduct.price}
+          </p>
+        </ModalComponent>
+      )}
     </div>
   );
 };

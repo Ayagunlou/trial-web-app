@@ -7,11 +7,11 @@ const Navbar = () => {
   return (
     <header className="bg-white shadow px-6 py-4">
       <div className="w-full flex justify-between items-center px-4">
-        
         {/* ซ้าย: ลิงก์เมนู */}
         <nav className="flex space-x-4">
-          <Link to="/" className="text-gray-800 hover:text-indigo-600">Home</Link>
-          <Link to="/product" className="text-gray-800 hover:text-indigo-600">Product</Link>
+          <Link to="/" className="text-gray-800 hover:text-indigo-600">
+            Home
+          </Link>
         </nav>
 
         {/* ขวา: Login/Logout + User */}
@@ -35,7 +35,6 @@ const Navbar = () => {
             </Link>
           )}
         </div>
-
       </div>
     </header>
   );
