@@ -14,7 +14,11 @@ const Home = () => {
   const [cart, setCart] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const tempImage = "../src/assets/image.png";
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const tempImage = "../src/assets/Earn Star Rail Passes and Star Rail Special Passes in Honkai Star Rail.jpg";
+  const tempImage2 = "../src/assets/Java-Emblem.jpg";
+  const tempImage3 = "../src/assets/486957113_1793738588075778_7917203237798573927_n.jpg";
+  const categories = ["All", "Clothing", "Accessories", "Shoes"];
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -27,13 +31,15 @@ const Home = () => {
               "100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit",
             price: 19.99,
             imageUrl: tempImage,
+            category: "Clothing",
           },
           {
             id: 2,
             name: "Stylish Jeans",
             description: "Slim fit, stretchy denim.",
             price: 49.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage2,
+            category: "Clothing",
           },
           {
             id: 3,
@@ -41,20 +47,23 @@ const Home = () => {
             description: "Lightweight with breathable mesh.",
             price: 89.99,
             imageUrl: tempImage,
+            category: "Clothing",
           },
           {
             id: 4,
             name: "Baseball Cap",
             description: "Adjustable fit, 100% cotton.",
             price: 14.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage3,
+            category: "Clothing",
           },
           {
             id: 5,
             name: "Leather Jacket",
             description: "Genuine leather, modern cut.",
             price: 199.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage2,
+            category: "Shoes",
           },
           {
             id: 6,
@@ -62,20 +71,23 @@ const Home = () => {
             description: "Breathable and comfortable.",
             price: 24.99,
             imageUrl: tempImage,
+            category: "Shoes",
           },
           {
             id: 7,
             name: "Hoodie",
             description: "Fleece-lined, great for cold weather.",
             price: 39.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage3,
+            category: "Shoes",
           },
           {
             id: 8,
             name: "Sunglasses",
             description: "UV protection, polarized lenses.",
             price: 29.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage2,
+            category: "Shoes",
           },
           {
             id: 9,
@@ -83,20 +95,22 @@ const Home = () => {
             description: "Water-resistant, multiple compartments.",
             price: 59.99,
             imageUrl: tempImage,
+            category: "Accessories",
           },
           {
             id: 10,
             name: "Wristwatch",
             description: "Analog display, leather strap.",
             price: 89.99,
-            imageUrl: tempImage,
+            imageUrl: tempImage2,
+            category: "Accessories",
           },
         ];
         setProducts(listProductMock);
         // const res = await axios.get('/products');
         // setProducts(res.data);
       } catch (err) {
-        console.error("Error fetching products:", err);
+        setAlertMsg({ typeAlert: TypeAlert.ERROR, message: err.message });
       } finally {
         setLoading(false);
       }
@@ -108,9 +122,9 @@ const Home = () => {
   // Detect screen size for responsive
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024); // breakpoint lg = 1024px
+      setIsMobile(window.innerWidth < 1024);
       if (window.innerWidth >= 1024) {
-        setIsCartOpen(false); // ปิด modal cart ถ้า desktop
+        setIsCartOpen(false);
       }
     };
     handleResize();
@@ -130,6 +144,7 @@ const Home = () => {
   };
   const onAcceptProductDetailsModal = () => {
     console.log("Accepted product:", selectedProduct.name);
+    handleAddToCart(selectedProduct);
   };
   const onDeclineProductDetailsModal = () => {
     console.log("Declined product:", selectedProduct.name);
@@ -146,6 +161,11 @@ const Home = () => {
       return [...prev, { ...product, quantity: 1 }];
     });
   };
+
+  const filteredProducts =
+    selectedCategory === "All"
+      ? products
+      : products.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -176,13 +196,30 @@ const Home = () => {
               )}
             </div>
 
+            {/* Category Filter */}
+            <div className="mb-6 flex gap-3 flex-wrap">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-full border ${
+                    selectedCategory === cat
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-blue-100"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
             {loading ? (
               <div className="text-center text-gray-500">
                 Loading products...
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <div
                     key={product.id}
                     className="border rounded-2xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
@@ -202,7 +239,7 @@ const Home = () => {
                       {product.description}
                     </p>
                     <p className="text-lg font-bold text-green-600 mb-2">
-                      ${product.price}
+                      ฿{product.price}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-2">
@@ -273,7 +310,7 @@ const Home = () => {
             {selectedProduct.description}
           </p>
           <p className="text-lg font-bold text-green-300">
-            ${selectedProduct.price}
+            ฿{selectedProduct.price}
           </p>
         </ModalComponent>
       )}

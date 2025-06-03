@@ -18,7 +18,9 @@ export function ModalComponent({
 }) {
   return (
     <Modal show={show} onClose={onClose}>
-      <ModalHeader>{textHeader}</ModalHeader>
+      <ModalHeader className="truncate">
+        {textHeader}
+      </ModalHeader>
       <ModalBody>{children}</ModalBody>
       <ModalFooter>
         <Button
@@ -27,7 +29,7 @@ export function ModalComponent({
             onClose && onClose();
           }}
         >
-          I accept
+          Add to Cart
         </Button>
         <Button
           color="gray"
@@ -36,7 +38,7 @@ export function ModalComponent({
             onClose && onClose();
           }}
         >
-          Decline
+          Close
         </Button>
       </ModalFooter>
     </Modal>
