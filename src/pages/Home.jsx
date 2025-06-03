@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "../api/axios";
 import Navbar from "../components/Navbar";
 import { ModalComponent } from "../components/ModalComponent";
 import { TypeAlert } from "../constants/constants";
-import { AlertMessage } from "../components/AlertMessage.jsx";
+import { AlertMessage } from "../components/AlertMessage";
+import Cart from "../components/Cart";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +11,9 @@ const Home = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const tempImage = "../src/assets/image.png";
 
   useEffect(() => {
@@ -19,7 +22,7 @@ const Home = () => {
         const listProductMock = [
           {
             id: 1,
-            name: "Cool T-Shirt",
+            name: "Cool T-Shirtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
             description:
               "100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit100% Cotton, Comfortable fit. 100% Cotton, Comfortable fit 100% Cotton, Comfortable fit  100% Cotton, Comfortable fit 100% Cotton, Comfortable fit",
             price: 19.99,
@@ -102,32 +105,28 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  const handleButtonClick = async () => {
-    try {
-      const res = await axios.post("/test/hello", {});
-      setAlertMsg({
-        typeAlert: TypeAlert.SUCCESS,
-        message: res.data,
-      });
-    } catch (error) {
-      setAlertMsg({
-        typeAlert: TypeAlert.WARNING,
-        message: error.response?.data.error,
-      });
-    }
-  };
+  // Detect screen size for responsive
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024); // breakpoint lg = 1024px
+      if (window.innerWidth >= 1024) {
+        setIsCartOpen(false); // ปิด modal cart ถ้า desktop
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const openProductDetailsModal = (product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
-    console.log("Modal open");
     setAlertMsg(null);
   };
 
   const closeProductDetailsModal = () => {
     setSelectedProduct(null);
     setIsModalOpen(false);
-    console.log("Modal closed");
   };
   const onAcceptProductDetailsModal = () => {
     console.log("Accepted product:", selectedProduct.name);
@@ -136,61 +135,122 @@ const Home = () => {
     console.log("Declined product:", selectedProduct.name);
   };
 
+  const handleAddToCart = (product) => {
+    setCart((prev) => {
+      const existing = prev.find((p) => p.id === product.id);
+      if (existing) {
+        return prev.map((p) =>
+          p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 🔹 Navbar */}
+      {/* Navbar */}
       <Navbar />
+
       {alertMsg && (
         <AlertMessage type={alertMsg.typeAlert} msg={alertMsg.message} />
       )}
-      {/* 🔹 Product Section */}
-      <main className="p-6">
-        <div className="flex flex-row w-full mb-6">
-          <h2 className="text-2xl sm:text-3xl text-gray-900 font-bold">
-            ✨ Featured Products
-          </h2>
 
-          <button
-            onClick={handleButtonClick}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base py-2 px-4 rounded-full ms-4"
-          >
-            Button
-          </button>
+      <main className="p-4 sm:p-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Product List */}
+          <div className={`flex-1 ${!isMobile ? "lg:mr-[350px]" : ""}`}>
+            <div className="flex flex-row w-full mb-6 items-center">
+              <h2 className="text-2xl sm:text-3xl text-gray-900 font-bold flex-1">
+                ✨ Featured Products
+              </h2>
+
+              {/* ปุ่มเปิด Cart เฉพาะ Mobile */}
+              {isMobile && (
+                <button
+                  onClick={() => setIsCartOpen(true)}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base py-2 px-4 rounded-full ms-4"
+                >
+                  View Cart ({cart.reduce((sum, p) => sum + p.quantity, 0)})
+                </button>
+              )}
+            </div>
+
+            {loading ? (
+              <div className="text-center text-gray-500">
+                Loading products...
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    className="border rounded-2xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
+                  >
+                    <img
+                      src={
+                        product.imageUrl ||
+                        "https://via.placeholder.com/300x200"
+                      }
+                      alt={product.name}
+                      className="w-full h-48 object-cover rounded-xl mb-3"
+                    />
+                    <h3 className="text-xl text-gray-600 font-semibold mb-1 truncate">
+                      {product.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-2 line-clamp-1">
+                      {product.description}
+                    </p>
+                    <p className="text-lg font-bold text-green-600 mb-2">
+                      ${product.price}
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                      >
+                        Add to Cart
+                      </button>
+                      <button
+                        onClick={() => openProductDetailsModal(product)}
+                        className="text-indigo-600 hover:underline text-sm self-center"
+                      >
+                        View Details →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Desktop: show Cart fixed right */}
+          {!isMobile && (
+            <div className="fixed top-24 right-4 h-[calc(100vh-6rem)] w-[350px] p-6 bg-white shadow-xl rounded-l-2xl overflow-auto z-50">
+              <Cart products={cart} onUpdateCart={setCart} isMobile={false} />
+            </div>
+          )}
         </div>
 
-        {loading ? (
-          <div className="text-center text-gray-500">Loading products...</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="border rounded-2xl p-4 shadow hover:shadow-lg transition duration-300 bg-white"
+        {/* Mobile: Cart modal */}
+        {isMobile && isCartOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white w-full h-full rounded-2xl relative overflow-auto p-6">
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="absolute top-4 right-4 text-gray-700 font-bold text-3xl"
+                aria-label="Close Cart"
               >
-                <img
-                  src={
-                    product.imageUrl || "https://via.placeholder.com/300x200"
-                  }
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-xl mb-3"
-                />
-                <h3 className="text-xl text-gray-600 font-semibold mb-1 line-clamp-1">
-                  {product.name}
-                </h3>
-                <p className="text-gray-600 text-sm mb-2 line-clamp-1">
-                  {product.description}
-                </p>
-                <p className="text-lg font-bold text-green-600 mb-2">
-                  ${product.price}
-                </p>
-                <button
-                  onClick={() => openProductDetailsModal(product)}
-                  className="text-indigo-600 hover:underline text-sm"
-                >
-                  View Details →
-                </button>
-              </div>
-            ))}
+                ×
+              </button>
+              <Cart
+                products={cart}
+                onUpdateCart={setCart}
+                onClose={() => setIsCartOpen(false)}
+                isMobile={true}
+              />
+            </div>
           </div>
         )}
       </main>
